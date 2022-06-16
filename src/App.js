@@ -1,4 +1,4 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword } from "firebase/auth";
 import './App.css';
 import initializeAuthentication from './Firebase/firebase.initialize';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,6 +14,9 @@ let githubprovider = new GithubAuthProvider();
 
 function App() {
   let [user, setUser] = useState({})
+  let [email, setEmail] = useState('')
+  let [password, setPassword] = useState('')
+  let [error, setError] = useState('')
 
   let handlegooglesignin = () => {
     const auth = getAuth();
@@ -55,8 +58,56 @@ function App() {
       setUser({})
     })
   }
+
+  let handleregistration = (e) => {
+    e.preventDefault()
+    console.log(email, password);
+    const auth = getAuth();
+    if (password.length < 6) {
+      setError('Password is Less than 6')
+    }
+    else {
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          setError('')
+          console.log(user);
+        })
+    }
+  }
+
+
+  let handleEmail = (e) => {
+    setEmail(e.target.value)
+  }
+  let handlePassword = (e) => {
+    setPassword(e.target.value);
+  }
   return (
-    <div className="App">
+    <div className="mx-5">
+      <form onSubmit={handleregistration}>
+        <h1 className="text-primary">Please Register</h1>
+        <div className="mb-3">
+          <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
+          <input type="email" required onBlur={handleEmail} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+          <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
+          <input type="password" required onBlur={handlePassword} className="form-control" id="exampleInputPassword1" />
+        </div>
+        <div className="mb-3 form-check" >
+          <input type="checkbox" className="form-check-input" id="exampleCheck1" />
+          <label className="form-check-label" htmlFor="exampleCheck1">Check me out</label>
+        </div>
+        <div className="mb-3 text-danger">
+          {error}
+        </div>
+        <button type="submit" className="btn btn-primary">Register</button>
+      </form>
+
+
       {/* {
         user.name ? <h1>Welcome <br />{user.name}</h1> : <Button onClick={handlegooglesignin}><FontAwesomeIcon icon="fa-brands fa-google" />Google Sign In</Button>
       } */}
